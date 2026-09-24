@@ -84,3 +84,67 @@ Veridiana Silveira Wojcickoski é psicopedagoga na H+ Clínica de Saúde Integra
 
 Jaqueline Sena é fonoaudióloga com 11 anos de experiência, pós-graduada em Intervenção ABA aplicada ao Transtorno do Espectro Autista (TEA), e integra o time da H+ Clínica de Saúde Integrada. Com foco no atendimento de crianças e adolescentes, ela tem como missão a construção de um mundo melhor por meio da comunicação, unindo técnica e dedicação em cada atendimento.
 
+
+
+**Ana Caroline Pupo**
+
+Psicóloga - CRP 08/47057
+
+
+
+“Como base dos meus atendimentos, trabalho com a Análise do Comportamento, buscando compreender como nossas experiências e o ambiente influenciam a forma como pensamos, sentimos e agimos. A partir disso, construímos juntos caminhos para mudanças que façam sentido no dia a dia.”
+
+
+
+\* Atendimento psicológico para adolescentes e adultos.
+
+\* Certificação em ABA – Análise do Comportamento Aplicada.
+
+
+
+**Isabele Sanches do Carmo Oliveira**
+
+CRP 08/41848
+
+Terapia cognitivo comportamental e análise do comportamento aplicada (ABA)
+
+
+
+**Suellen ferreira**
+
+Nutricionista Clínica
+
+Trabalho com Atendimento individualizado para todas as idades, com foco em nutrição materno-infantil, terapia alimentar e educação alimentar.
+
+
+
+Acompanho mamães e bebês desde a gestação, além de crianças e famílias, promovendo uma relação mais leve e saudável com a alimentação.
+
+
+
+Pós-graduada em Nutrição Clínica, Materno-Infantil e TEA
+
+
+
+**Gisele Aparecida dos Santos**
+
+CRP 08/46701
+
+
+
+Psicóloga clínica com atuação fundamentada na Terapia Cognitivo-Comportamental (TCC) e mais de 12 anos de experiência em Recursos Humanos e Psicologia Organizacional.
+
+
+
+Atuação com adolescentes e adultos, com foco em ansiedade, autoestima, relacionamentos, sobrecarga e desafios pessoais e profissionais.
+
+
+
+Uma prática acolhedora, ética e objetiva, voltada à compreensão das dificuldades, desenvolvimento de estratégias e construção de mudanças possíveis.
+
+
+
+Experiência também em carreira, relações profissionais, liderança e saúde emocional no ambiente corporativo. Atendimento presencial e online.
+
+
+
