@@ -44,7 +44,15 @@ export default function AdminLogin() {
         body: JSON.stringify({ password: form.password }),
       });
 
-      const data = await res.json();
+      const rawText = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error(
+          `Erro de comunicação com o servidor (HTTP ${res.status}). Aguarde o término do deploy ou tente novamente.`
+        );
+      }
 
       if (!res.ok) {
         throw new Error(data.error || "Falha no login");

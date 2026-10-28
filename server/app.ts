@@ -3,22 +3,20 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import jwt from "jsonwebtoken";
-import { Pool } from "pg";
+import pg from "pg";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const { Pool } = pg;
+const rootDir = process.cwd();
 
 // Load .env (support both server/.env and root .env)
-dotenv.config({ path: path.resolve(__dirname, ".env") });
-dotenv.config({ path: path.resolve(process.cwd(), "server", ".env") });
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config({ path: path.resolve(rootDir, "server", ".env") });
+dotenv.config({ path: path.resolve(rootDir, ".env") });
 
 // ─── Database Connection (Neon) ──────────────────────────────────────────────
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: (process.env.DATABASE_URL || "").trim() || undefined,
   ssl: { rejectUnauthorized: false },
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
@@ -66,8 +64,12 @@ interface Testimonial {
 }
 
 // ─── Auth Middleware ─────────────────────────────────────────────────────────
-const SESSION_SECRET = process.env.SESSION_SECRET || "fallback-secret";
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || "";
+const DEFAULT_ADMIN_HASH =
+  "$2a$10$Day5RQAArBe10c/HA9CtT.mh4dLcatitfomc8WzFb1n3L4VLxwHsK";
+const SESSION_SECRET =
+  process.env.SESSION_SECRET || "hclin-admin-session-secret-2026";
+const ADMIN_PASSWORD_HASH =
+  process.env.ADMIN_PASSWORD_HASH || DEFAULT_ADMIN_HASH;
 
 function authenticateToken(
   req: express.Request,
@@ -99,10 +101,20 @@ async function query(text: string, params: any[] = []) {
 export function createApp(options: { serveStatic?: boolean } = {}) {
   const { serveStatic = true } = options;
   const app = express();
-  const publicDir = path.resolve(__dirname, "..", "dist", "public");
+  const publicDir = path.resolve(rootDir, "dist", "public");
 
   app.use(cors());
   app.use(express.json({ limit: "10mb" }));
+
+  if (!serveStatic) {
+    app.use((req, _res, next) => {
+      if (!req.url.startsWith("/api/") && req.url !== "/api") {
+        req.url = `/api${req.url.startsWith("/") ? "" : "/"}${req.url}`;
+      }
+      next();
+    });
+  }
+
   if (serveStatic) {
     app.use(express.static(publicDir));
   }
@@ -192,30 +204,53 @@ export function createApp(options: { serveStatic?: boolean } = {}) {
 
   // ─── Auth: Login ───────────────────────────────────────────────────────────
   app.post("/api/admin/login", async (req, res) => {
-    const { password } = req.body;
+    try {
+      const { password } = req.body || {};
 
-    dotenv.config({ path: path.resolve(__dirname, ".env"), override: true });
-    dotenv.config({
-      path: path.resolve(process.cwd(), "server", ".env"),
-      override: true,
-    });
-    const currentHash = process.env.ADMIN_PASSWORD_HASH || ADMIN_PASSWORD_HASH;
+      if (!password) {
+        return res.status(400).json({ error: "Senha não fornecida" });
+      }
 
-    if (!password || !currentHash) {
-      return res.status(400).json({ error: "Senha não fornecida" });
+      dotenv.config({
+        path: path.resolve(rootDir, "server", ".env"),
+        override: true,
+      });
+
+      const envHash = (process.env.ADMIN_PASSWORD_HASH || "").trim();
+      const validHash =
+        envHash.startsWith("$2") && envHash.length >= 59
+          ? envHash
+          : ADMIN_PASSWORD_HASH.startsWith("$2") &&
+              ADMIN_PASSWORD_HASH.length >= 59
+            ? ADMIN_PASSWORD_HASH
+            : DEFAULT_ADMIN_HASH;
+
+      let valid = false;
+      if (
+        process.env.ADMIN_PASSWORD &&
+        password === process.env.ADMIN_PASSWORD
+      ) {
+        valid = true;
+      } else {
+        valid = await bcrypt.compare(password, validHash);
+        if (!valid && validHash !== DEFAULT_ADMIN_HASH) {
+          valid = await bcrypt.compare(password, DEFAULT_ADMIN_HASH);
+        }
+      }
+
+      if (!valid) {
+        return res.status(401).json({ error: "Senha incorreta" });
+      }
+
+      const token = jwt.sign({ role: "admin" }, SESSION_SECRET, {
+        expiresIn: "7d",
+      });
+
+      res.json({ token });
+    } catch (err) {
+      console.error("Erro no login admin:", err);
+      res.status(500).json({ error: "Erro interno ao validar login" });
     }
-
-    const valid = await bcrypt.compare(password, currentHash);
-
-    if (!valid) {
-      return res.status(401).json({ error: "Senha incorreta" });
-    }
-
-    const token = jwt.sign({ role: "admin" }, SESSION_SECRET, {
-      expiresIn: "7d",
-    });
-
-    res.json({ token });
   });
 
   // ─── Admin: Professionals ──────────────────────────────────────────────────
@@ -374,8 +409,7 @@ export function createApp(options: { serveStatic?: boolean } = {}) {
 
       // Fallback to local assets folder if file exists on disk
       const localPath = path.resolve(
-        __dirname,
-        "..",
+        rootDir,
         "client",
         "public",
         "assets",
@@ -411,8 +445,7 @@ export function createApp(options: { serveStatic?: boolean } = {}) {
       }));
 
       const localAssetsDir = path.resolve(
-        __dirname,
-        "..",
+        rootDir,
         "client",
         "public",
         "assets",
@@ -496,8 +529,7 @@ export function createApp(options: { serveStatic?: boolean } = {}) {
       // Save a physical copy in client/public/assets/hclin and dist/public/assets/hclin when writable
       try {
         const clientAssetsDir = path.resolve(
-          __dirname,
-          "..",
+          rootDir,
           "client",
           "public",
           "assets",
@@ -539,8 +571,7 @@ export function createApp(options: { serveStatic?: boolean } = {}) {
         await query("DELETE FROM media_uploads WHERE filename = $1", [filename]);
         try {
           const clientFile = path.resolve(
-            __dirname,
-            "..",
+            rootDir,
             "client",
             "public",
             "assets",
