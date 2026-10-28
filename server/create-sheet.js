@@ -8,7 +8,16 @@ const SPREADSHEET_TITLE = "HCLIN Saúde Integrada - Depoimentos";
 const SHEET_NAME = "Depoimentos";
 
 // Cabeçalho das colunas
-const HEADERS = ["ID", "Posicao", "Depoimento", "Categoria", "Autor", "Data", "Publicado", "Status"];
+const HEADERS = [
+  "ID",
+  "Posicao",
+  "Depoimento",
+  "Categoria",
+  "Autor",
+  "Data",
+  "Publicado",
+  "Status",
+];
 
 // Os 13 depoimentos fornecidos
 const TESTIMONIALS = [
@@ -20,7 +29,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "2",
@@ -30,7 +39,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "3",
@@ -40,7 +49,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "4",
@@ -50,7 +59,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "5",
@@ -60,7 +69,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "6",
@@ -70,7 +79,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "7",
@@ -80,7 +89,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "8",
@@ -90,7 +99,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "9",
@@ -100,7 +109,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "10",
@@ -110,7 +119,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "11",
@@ -120,7 +129,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "12",
@@ -130,7 +139,7 @@ const TESTIMONIALS = [
     author: "Paciente",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
+    status: "aceito",
   },
   {
     id: "13",
@@ -140,8 +149,8 @@ const TESTIMONIALS = [
     author: "Colaborador",
     date: "2026-10-05",
     published: true,
-    status: "aceito"
-  }
+    status: "aceito",
+  },
 ];
 
 async function main() {
@@ -181,10 +190,23 @@ async function main() {
   console.log("URL: https://docs.google.com/spreadsheets/d/" + spreadsheetId);
 
   // Inserir dados
-  const range = SHEET_NAME + "!A1:" + String(HEADERS.length) + String(TESTIMONIALS.length + 1);
+  const range =
+    SHEET_NAME +
+    "!A1:" +
+    String(HEADERS.length) +
+    String(TESTIMONIALS.length + 1);
   const values = [HEADERS];
-  TESTIMONIALS.forEach((t) => {
-    values.push([t.id, t.position, t.text, t.category, t.author, t.date, t.published, t.status]);
+  TESTIMONIALS.forEach(t => {
+    values.push([
+      t.id,
+      t.position,
+      t.text,
+      t.category,
+      t.author,
+      t.date,
+      t.published,
+      t.status,
+    ]);
   });
 
   console.log("Inserindo", values.length - 1, "depoimentos...");
@@ -196,15 +218,19 @@ async function main() {
   });
 
   console.log("Dados inseridos com sucesso!");
-  console.log("Para acessar: https://docs.google.com/spreadsheets/d/" + spreadsheetId);
+  console.log(
+    "Para acessar: https://docs.google.com/spreadsheets/d/" + spreadsheetId
+  );
   console.log("\nInstruções de configuração no site:");
   console.log("1. Compartilhe a planilha com a conta service account");
   console.log("2. Configure as variáveis de ambiente no servidor:");
-  console.log("   - GOOGLE_SERVICE_ACCOUNT_FILE=/caminho/para/service-account.json");
+  console.log(
+    "   - GOOGLE_SERVICE_ACCOUNT_FILE=/caminho/para/service-account.json"
+  );
   console.log("   - GOOGLE_SPREADSHEET_ID=" + spreadsheetId);
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error("Erro:", err);
   process.exit(1);
 });

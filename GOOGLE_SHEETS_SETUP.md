@@ -51,6 +51,6 @@ Plana os 14 depoimentos fornecidos.
 
 ## Endpoints da API
 
-| Método | Rota               | Descrição                    |
-|--------|--------------------|------------------------------|
-| GET    | `/api/testimonials`| Retorna todos os depoimentos |
+| Método | Rota                | Descrição                    |
+| ------ | ------------------- | ---------------------------- |
+| GET    | `/api/testimonials` | Retorna todos os depoimentos |

@@ -3,16 +3,19 @@
 ## Três direções exploradas
 
 ### 1. Arquitetura do Cuidado
+
 **Muito breve:** Uma linguagem editorial contemporânea inspirada em clínicas luminosas, com blocos assimétricos, linhas arquitetônicas e a marca H+ tratada como sinal de integração.
 
 **Probabilidade:** 0.04
 
 ### 2. Cuidado em Camadas
+
 **Muito breve:** Uma experiência acolhedora, com marfim, azul-petróleo e dourado suave, imagens de ambiente e transições orgânicas que comunicam proximidade sem perder rigor.
 
 **Probabilidade:** 0.08
 
 ### 3. Pulso Essencial
+
 **Muito breve:** Uma composição mais minimalista e institucional, baseada em alto contraste, tipografia limpa e chamadas diretas para o WhatsApp.
 
 **Probabilidade:** 0.02
@@ -22,6 +25,7 @@
 ## Abordagem escolhida: Cuidado em Camadas
 
 ### Movimento de design
+
 Editorial clínico acolhedor, com referências de arquitetura de interiores, papel natural e sinalização de saúde contemporânea. A página deve parecer uma extensão digital do espaço físico: luminosa, humana e segura.
 
 ### Princípios centrais

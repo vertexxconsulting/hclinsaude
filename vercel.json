@@ -1,12 +1,16 @@
 {
   "version": 2,
   "framework": "vite",
-  "installCommand": "pnpm install --frozen-lockfile",
+  "installCommand": "pnpm install --no-frozen-lockfile",
   "buildCommand": "pnpm vite build",
   "outputDirectory": "dist/public",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]

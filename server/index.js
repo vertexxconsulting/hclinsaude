@@ -22,7 +22,10 @@ class SheetsReader {
     if (!spreadsheetId) {
       throw new Error("GOOGLE_SPREADSHEET_ID não definida");
     }
-    const sheets = google.sheets({ version: "v4", auth: await this.auth.getClient() });
+    const sheets = google.sheets({
+      version: "v4",
+      auth: await this.auth.getClient(),
+    });
 
     const range = "Depoimentos!A1:H100";
     const response = await sheets.spreadsheets.values.get({
@@ -33,7 +36,7 @@ class SheetsReader {
     const rows = response.data.values || [];
     // Headera: ID, Orden, Depoimento, Categoria, Autor, Data, Publicado, Status
     const testimonials = rows
-      .filter((row) => row[2] && row[2].trim()) // com depoimento
+      .filter(row => row[2] && row[2].trim()) // com depoimento
       .map((row, index) => ({
         id: row[0] ? String(row[0]) : index + 1,
         order: row[1] ? Number(row[1]) : index + 1,
@@ -44,7 +47,7 @@ class SheetsReader {
         published: row[6] === "true" || row[6] === true,
         status: row[7] || "pendente",
       }))
-      .filter((t) => t.status !== "rejeitado") // só aceitos e pendentes
+      .filter(t => t.status !== "rejeitado") // só aceitos e pendentes
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     return testimonials;

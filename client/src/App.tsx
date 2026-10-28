@@ -6,6 +6,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Privacy from "./pages/Privacy";
+import AdminLogin from "./pages/AdminLogin";
+import AdminPanel from "./pages/AdminPanel";
+import AdminProfessionals from "./pages/AdminProfessionals";
+import AdminTestimonials from "./pages/AdminTestimonials";
 
 // HCLIN / Cuidado em Camadas: navegação pública com respiro editorial, marca H+ e acesso claro ao WhatsApp.
 function Router() {
@@ -13,6 +17,10 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/privacidade" component={Privacy} />
+      <Route path="/admin" component={AdminLogin} />
+      <Route path="/admin/panel" component={AdminPanel} />
+      <Route path="/admin/professionals" component={AdminProfessionals} />
+      <Route path="/admin/testimonials" component={AdminTestimonials} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

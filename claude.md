@@ -12,13 +12,13 @@ A aplicação é um frontend estático. Não há backend próprio para formulár
 
 O projeto utiliza React 19, TypeScript, Vite 7, Tailwind CSS 4, Wouter e Lucide React. Os componentes visuais disponíveis em `client/src/components/ui/` são baseados em shadcn/ui e Radix UI.
 
-| Comando | Finalidade |
-|---|---|
-| `pnpm dev` | Inicia o servidor Vite em desenvolvimento. |
-| `pnpm check` | Executa o TypeScript sem emitir arquivos. |
-| `pnpm build` | Gera o build estático de produção. |
-| `pnpm preview` | Abre uma prévia do build. |
-| `pnpm format` | Formata o código com Prettier. |
+| Comando        | Finalidade                                 |
+| -------------- | ------------------------------------------ |
+| `pnpm dev`     | Inicia o servidor Vite em desenvolvimento. |
+| `pnpm check`   | Executa o TypeScript sem emitir arquivos.  |
+| `pnpm build`   | Gera o build estático de produção.         |
+| `pnpm preview` | Abre uma prévia do build.                  |
+| `pnpm format`  | Formata o código com Prettier.             |
 
 Depois de alterações relevantes, execute `pnpm check` e `pnpm build`. Em mudanças visuais, revise desktop e mobile no preview.
 
@@ -57,12 +57,12 @@ vercel.json                  # Configuração de hospedagem estática
 
 ## Rotas e navegação
 
-| Rota | Uso |
-|---|---|
-| `/` | Landing page completa da HCLIN. |
-| `/privacidade` | Política de Privacidade e Cookies. |
-| `/404` | Página de não encontrado. |
-| Qualquer outra rota | Fallback para a página 404. |
+| Rota                | Uso                                |
+| ------------------- | ---------------------------------- |
+| `/`                 | Landing page completa da HCLIN.    |
+| `/privacidade`      | Política de Privacidade e Cookies. |
+| `/404`              | Página de não encontrado.          |
+| Qualquer outra rota | Fallback para a página 404.        |
 
 O cabeçalho deve permanecer limpo e mostrar somente as abas essenciais: **A HCLIN**, **Especialidades**, **Equipe**, **Localização** e **Contato**. Dicas, Convênios, Avaliações e FAQ permanecem acessíveis na própria página ou por CTAs contextuais.
 
@@ -70,15 +70,15 @@ O cabeçalho deve permanecer limpo e mostrar somente as abas essenciais: **A HCL
 
 A direção visual é **Cuidado em Camadas**, inspirada em uma clínica integrada, acolhedora e editorial.
 
-| Elemento | Diretriz |
-|---|---|
-| Fundo principal | Marfim quente, próximo de `#f7f4ed`. |
-| Cor de autoridade | Azul-petróleo profundo, próximo de `#0f4c5c`. |
-| Acento | Champagne/dourado discreto, próximo de `#c7a96b` e `#9d8152`. |
-| Títulos | Fraunces ou fonte editorial equivalente configurada no projeto. |
-| Corpo | Sans-serif legível, com contraste e espaçamento confortáveis. |
-| Marca | Símbolo H+ da clínica, sem substituir por ícone genérico. |
-| Motivos | Arcos, linhas finas, camadas translúcidas, textura sutil e recortes editoriais. |
+| Elemento          | Diretriz                                                                        |
+| ----------------- | ------------------------------------------------------------------------------- |
+| Fundo principal   | Marfim quente, próximo de `#f7f4ed`.                                            |
+| Cor de autoridade | Azul-petróleo profundo, próximo de `#0f4c5c`.                                   |
+| Acento            | Champagne/dourado discreto, próximo de `#c7a96b` e `#9d8152`.                   |
+| Títulos           | Fraunces ou fonte editorial equivalente configurada no projeto.                 |
+| Corpo             | Sans-serif legível, com contraste e espaçamento confortáveis.                   |
+| Marca             | Símbolo H+ da clínica, sem substituir por ícone genérico.                       |
+| Motivos           | Arcos, linhas finas, camadas translúcidas, textura sutil e recortes editoriais. |
 
 Evite roxo genérico, gradientes chamativos, excesso de cards iguais, excesso de bordas arredondadas e layouts completamente centralizados. Pergunta-guia: **esta decisão reforça ou dilui o cuidado integrado da HCLIN?**
 

@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo } from "react";
 import {
   ChevronLeft,
   ChevronRight,
-  MessageCircle,
   Pause,
   Play,
   Quote,
@@ -11,34 +10,120 @@ import {
   CheckCircle2,
   Sparkles,
   Heart,
+  X,
 } from "lucide-react";
-import { testimonials, type Testimonial } from "@/data/testimonials";
+import {
+  testimonials as fallbackTestimonials,
+  type Testimonial,
+} from "@/data/testimonials";
 
 interface TestimonialsSectionProps {
-  whatsappLink: (message?: string) => string;
-  trackWhatsAppClick: (source: string) => void;
+  whatsappLink?: (message?: string) => string;
+  trackWhatsAppClick?: (source: string) => void;
+  testimonials?: Testimonial[];
 }
 
 const ITEMS_PER_PAGE = 4;
 const ROTATION_INTERVAL_MS = 6500;
 
+const TAG_SUGGESTIONS = [
+  "Acolhimento & Respeito",
+  "Conforto & Clareza",
+  "Escuta Humanizada",
+  "Cuidado para Toda Família",
+  "Organização & Ética",
+];
+
 export default function TestimonialsSection({
-  whatsappLink,
-  trackWhatsAppClick,
+  testimonials: liveTestimonials,
 }: TestimonialsSectionProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Dividir os 13 depoimentos em páginas de 4 depoimentos cada
+  // Estado do formulário de envio de depoimento direto para o banco (Neon)
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    author: "",
+    role: "",
+    tag: TAG_SUGGESTIONS[0],
+    rating: 5,
+    text: "",
+  });
+
+  async function handleTestimonialSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!formData.text.trim()) return;
+
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch("/api/testimonials/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          author: formData.author.trim() || "Paciente HCLIN",
+          role: formData.role.trim() || "Atendimento na clínica",
+          category: "Paciente",
+          tag: formData.tag || "Acolhimento & Respeito",
+          rating: formData.rating,
+          text: formData.text.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Não foi possível enviar o depoimento");
+      }
+
+      setSubmitSuccess(true);
+      setFormData({
+        author: "",
+        role: "",
+        tag: TAG_SUGGESTIONS[0],
+        rating: 5,
+        text: "",
+      });
+    } catch (err: any) {
+      setSubmitError(
+        err.message || "Ocorreu um erro ao enviar seu depoimento."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  // Usar liveTestimonials do Neon, ou fallback local
+  const testimonials =
+    liveTestimonials && liveTestimonials.length > 0
+      ? liveTestimonials
+      : fallbackTestimonials;
+
+  // Dividir os depoimentos em páginas de 4 depoimentos cada
   const pages: Testimonial[][] = useMemo(() => {
-    return [
-      testimonials.slice(0, 4),   // Depoimentos 1 a 4
-      testimonials.slice(4, 8),   // Depoimentos 5 a 8
-      testimonials.slice(8, 12),  // Depoimentos 9 a 12
-      testimonials.slice(9, 13),  // Depoimentos 10 a 13 (inclui o da equipe)
-    ];
-  }, []);
+    if (testimonials.length <= ITEMS_PER_PAGE) {
+      return [testimonials];
+    }
+    const result: Testimonial[][] = [];
+    for (let i = 0; i < testimonials.length; i += ITEMS_PER_PAGE) {
+      const slice = testimonials.slice(i, i + ITEMS_PER_PAGE);
+      if (slice.length < ITEMS_PER_PAGE) {
+        result.push(
+          testimonials.slice(
+            testimonials.length - ITEMS_PER_PAGE,
+            testimonials.length
+          )
+        );
+      } else {
+        result.push(slice);
+      }
+    }
+    return result;
+  }, [testimonials]);
 
   const totalPages = pages.length;
 
@@ -50,9 +135,9 @@ export default function TestimonialsSection({
     const progressIncrement = (intervalStep / ROTATION_INTERVAL_MS) * 100;
 
     const timer = setInterval(() => {
-      setProgress((prev) => {
+      setProgress(prev => {
         if (prev >= 100) {
-          setCurrentPage((curr) => (curr + 1) % totalPages);
+          setCurrentPage(curr => (curr + 1) % totalPages);
           return 0;
         }
         return prev + progressIncrement;
@@ -63,12 +148,12 @@ export default function TestimonialsSection({
   }, [isPaused, totalPages]);
 
   const goToNext = () => {
-    setCurrentPage((curr) => (curr + 1) % totalPages);
+    setCurrentPage(curr => (curr + 1) % totalPages);
     setProgress(0);
   };
 
   const goToPrev = () => {
-    setCurrentPage((curr) => (curr - 1 + totalPages) % totalPages);
+    setCurrentPage(curr => (curr - 1 + totalPages) % totalPages);
     setProgress(0);
   };
 
@@ -103,8 +188,8 @@ export default function TestimonialsSection({
               A escuta também continua depois do atendimento.
             </h2>
             <p className="mt-4 text-base leading-7 text-[#17313a]/75 sm:text-lg">
-              Depoimentos reais de quem encontrou acolhimento, cuidado humanizado e profissionais
-              dedicados na HCLIN Saúde Integrada.
+              Depoimentos reais de quem encontrou acolhimento, cuidado
+              humanizado e profissionais dedicados na HCLIN Saúde Integrada.
             </p>
 
             {/* Badges de credibilidade */}
@@ -112,16 +197,24 @@ export default function TestimonialsSection({
               <div className="flex items-center gap-2 rounded-full border border-[#0f4c5c]/15 bg-white/70 px-4 py-2 backdrop-blur">
                 <div className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={15} className="fill-[#c7a96b] text-[#c7a96b]" />
+                    <Star
+                      key={i}
+                      size={15}
+                      className="fill-[#c7a96b] text-[#c7a96b]"
+                    />
                   ))}
                 </div>
                 <span className="font-bold text-[#0f4c5c]">5.0</span>
-                <span className="text-[#17313a]/60">· Cuidado de excelência</span>
+                <span className="text-[#17313a]/60">
+                  · Cuidado de excelência
+                </span>
               </div>
 
               <div className="flex items-center gap-2 rounded-full border border-[#0f4c5c]/15 bg-white/70 px-4 py-2 text-[#0f4c5c] backdrop-blur">
                 <CheckCircle2 size={15} className="text-[#128c4a]" />
-                <span className="font-medium">13 depoimentos cadastrados</span>
+                <span className="font-medium">
+                  {testimonials.length} depoimentos cadastrados
+                </span>
               </div>
 
               <div className="flex items-center gap-2 rounded-full border border-[#c7a96b]/35 bg-[#e9efea]/80 px-4 py-2 text-[#0f4c5c] backdrop-blur">
@@ -141,12 +234,24 @@ export default function TestimonialsSection({
               {/* Botão de Pausar / Retomar Auto-Play */}
               <button
                 type="button"
-                onClick={() => setIsPaused((prev) => !prev)}
+                onClick={() => setIsPaused(prev => !prev)}
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-[#0f4c5c]/20 bg-white/80 text-[#0f4c5c] transition hover:bg-[#0f4c5c] hover:text-white"
-                title={isPaused ? "Retomar rotação automática" : "Pausar rotação automática"}
-                aria-label={isPaused ? "Retomar rotação automática" : "Pausar rotação automática"}
+                title={
+                  isPaused
+                    ? "Retomar rotação automática"
+                    : "Pausar rotação automática"
+                }
+                aria-label={
+                  isPaused
+                    ? "Retomar rotação automática"
+                    : "Pausar rotação automática"
+                }
               >
-                {isPaused ? <Play size={14} className="ml-0.5" /> : <Pause size={14} />}
+                {isPaused ? (
+                  <Play size={14} className="ml-0.5" />
+                ) : (
+                  <Pause size={14} />
+                )}
               </button>
 
               {/* Botão Anterior */}
@@ -207,7 +312,11 @@ export default function TestimonialsSection({
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-1">
                         {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} size={15} className="fill-[#c7a96b] text-[#c7a96b]" />
+                          <Star
+                            key={i}
+                            size={15}
+                            className="fill-[#c7a96b] text-[#c7a96b]"
+                          />
                         ))}
                       </div>
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#0f4c5c]/5 text-[#c7a96b] transition duration-300 group-hover:bg-[#0f4c5c] group-hover:text-[#f7f4ed]">
@@ -224,7 +333,9 @@ export default function TestimonialsSection({
                             : "bg-[#e9efea] text-[#0f4c5c]"
                         }`}
                       >
-                        {isStaff && <Sparkles size={11} className="text-[#c7a96b]" />}
+                        {isStaff && (
+                          <Sparkles size={11} className="text-[#c7a96b]" />
+                        )}
                         {testimonial.tag}
                       </span>
                     </div>
@@ -270,8 +381,7 @@ export default function TestimonialsSection({
           </div>
         </div>
 
-
-        {/* Banner de Chamada para Novos Depoimentos */}
+        {/* Banner e Formulário de Envio Direto para Aprovação Admin */}
         <div className="mt-14 rounded-[32px] border border-[#0f4c5c]/15 bg-[#e9efea]/90 p-8 sm:p-10 backdrop-blur-md">
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
             <div>
@@ -282,28 +392,212 @@ export default function TestimonialsSection({
                 Já foi atendido na HCLIN? Deixe seu depoimento.
               </h3>
               <p className="mt-2 text-sm leading-6 text-[#17313a]/70">
-                Envie seu relato diretamente pelo WhatsApp da clínica. Após autorização e revisão cuidadosa,
-                ele poderá ser incluído aqui para acolher novas pessoas e famílias.
+                Registre seu relato diretamente aqui no site. Após revisão e
+                aprovação da nossa equipe, ele será publicado neste mural para
+                acolher novas pessoas e famílias.
               </p>
             </div>
 
             <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center lg:justify-end">
-              <a
-                onClick={() => trackWhatsAppClick("testimonial_submit")}
-                href={whatsappLink(
-                  "Olá, HCLIN! Gostaria de registrar meu depoimento sobre o atendimento que recebi na clínica."
-                )}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFormOpen(prev => !prev);
+                  setSubmitSuccess(false);
+                  setSubmitError(null);
+                }}
                 className="inline-flex items-center gap-3 rounded-full bg-[#0f4c5c] px-7 py-4 text-xs font-bold uppercase tracking-[0.16em] text-white transition duration-300 hover:-translate-y-1 hover:bg-[#17313a] hover:shadow-[0_16px_45px_rgba(15,76,92,.35)]"
               >
-                <Send size={15} /> Registrar meu depoimento
-              </a>
-              <span className="flex items-center gap-1.5 text-xs text-[#17313a]/55">
-                <MessageCircle size={14} className="text-[#25D366]" /> Direto no WhatsApp
-              </span>
+                {isFormOpen ? (
+                  <>
+                    <X size={15} /> Fechar formulário
+                  </>
+                ) : (
+                  <>
+                    <Send size={15} /> Registrar meu depoimento
+                  </>
+                )}
+              </button>
             </div>
           </div>
+
+          {submitSuccess && (
+            <div className="mt-8 rounded-2xl border border-[#128c4a]/25 bg-white/90 p-6 text-[#0f4c5c] shadow-sm">
+              <div className="flex items-start gap-3">
+                <CheckCircle2
+                  size={22}
+                  className="mt-0.5 shrink-0 text-[#128c4a]"
+                />
+                <div>
+                  <h4 className="font-display text-xl text-[#0f4c5c]">
+                    Depoimento enviado com sucesso!
+                  </h4>
+                  <p className="mt-1 text-sm text-[#17313a]/75">
+                    Agradecemos imensamente pelo carinho. Seu depoimento foi
+                    salvo e ficará visível no site assim que for aprovado pela
+                    administração da HCLIN.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitSuccess(false);
+                      setIsFormOpen(false);
+                    }}
+                    className="mt-4 text-xs font-bold uppercase tracking-[0.14em] text-[#0f4c5c] underline decoration-[#c7a96b] underline-offset-4"
+                  >
+                    Concluir
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isFormOpen && !submitSuccess && (
+            <form
+              onSubmit={handleTestimonialSubmit}
+              className="mt-8 border-t border-[#0f4c5c]/15 pt-8"
+            >
+              {submitError && (
+                <div className="mb-5 rounded-xl border border-[#ff6b6b]/40 bg-[#ff6b6b]/10 px-4 py-3 text-sm text-[#a61b1b]">
+                  {submitError}
+                </div>
+              )}
+
+              <div className="grid gap-5 md:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-[0.14em] text-[#0f4c5c]">
+                    Seu nome{" "}
+                    <span className="font-normal normal-case tracking-normal text-[#17313a]/50">
+                      (ou deixe em branco para exibir &ldquo;Paciente
+                      HCLIN&rdquo;)
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.author}
+                    onChange={e =>
+                      setFormData({ ...formData, author: e.target.value })
+                    }
+                    placeholder="Ex.: Maria S. ou Paciente HCLIN"
+                    className="mt-2 w-full rounded-full border border-[#0f4c5c]/20 bg-white px-4 py-3 text-sm text-[#0f4c5c] placeholder-[#17313a]/40 focus:border-[#c7a96b] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-[0.14em] text-[#0f4c5c]">
+                    Área ou contexto do atendimento
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.role}
+                    onChange={e =>
+                      setFormData({ ...formData, role: e.target.value })
+                    }
+                    placeholder="Ex.: Atendimento em Psicologia, Nutrição, Acompanhamento..."
+                    className="mt-2 w-full rounded-full border border-[#0f4c5c]/20 bg-white px-4 py-3 text-sm text-[#0f4c5c] placeholder-[#17313a]/40 focus:border-[#c7a96b] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-[0.14em] text-[#0f4c5c]">
+                    O que mais marcou sua experiência?
+                  </label>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {TAG_SUGGESTIONS.map(tagOption => {
+                      const active = formData.tag === tagOption;
+                      return (
+                        <button
+                          key={tagOption}
+                          type="button"
+                          onClick={() =>
+                            setFormData({ ...formData, tag: tagOption })
+                          }
+                          className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition ${
+                            active
+                              ? "bg-[#0f4c5c] text-white"
+                              : "border border-[#0f4c5c]/20 bg-white/80 text-[#0f4c5c] hover:bg-white"
+                          }`}
+                        >
+                          {tagOption}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-[0.14em] text-[#0f4c5c]">
+                    Sua avaliação
+                  </label>
+                  <div className="mt-2 flex items-center gap-1.5">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() =>
+                          setFormData({ ...formData, rating: star })
+                        }
+                        aria-label={`Avaliar com ${star} estrelas`}
+                        className="rounded-full p-1 transition hover:scale-110"
+                      >
+                        <Star
+                          size={24}
+                          className={
+                            star <= formData.rating
+                              ? "fill-[#c7a96b] text-[#c7a96b]"
+                              : "text-[#0f4c5c]/25"
+                          }
+                        />
+                      </button>
+                    ))}
+                    <span className="ml-2 text-xs font-bold text-[#0f4c5c]">
+                      {formData.rating}.0 / 5.0
+                    </span>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold uppercase tracking-[0.14em] text-[#0f4c5c]">
+                    Seu depoimento *
+                  </label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={formData.text}
+                    onChange={e =>
+                      setFormData({ ...formData, text: e.target.value })
+                    }
+                    placeholder="Conte como foi sua experiência de acolhimento e cuidado na HCLIN..."
+                    className="mt-2 w-full rounded-2xl border border-[#0f4c5c]/20 bg-white px-4 py-3 text-sm text-[#0f4c5c] placeholder-[#17313a]/40 focus:border-[#c7a96b] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+                <p className="text-xs text-[#17313a]/60">
+                  Seu relato será encaminhado para revisão da administração
+                  antes de ser publicado.
+                </p>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsFormOpen(false)}
+                    className="rounded-full border border-[#0f4c5c]/20 px-5 py-3 text-xs font-bold uppercase tracking-[0.14em] text-[#0f4c5c] transition hover:bg-white"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="inline-flex items-center gap-2 rounded-full bg-[#0f4c5c] px-7 py-3 text-xs font-bold uppercase tracking-[0.16em] text-white transition hover:bg-[#17313a] disabled:opacity-50"
+                  >
+                    <Send size={14} />
+                    {submitting ? "Enviando..." : "Enviar para aprovação"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </section>
